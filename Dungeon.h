@@ -10,21 +10,40 @@
 #include "NPC.h"
 #include "Room.h"
 
+#define sizeX 11
+#define sizeY 25
+
 using namespace std;
 
-class Dungeon{
+class Dungeon {
 private:
     int direx[4] = {-1, 1, 0, 0};
     int direy[4] = {0, 0, -1, 1};
     char facingTable[4] = {'A', 'V', '<', '>'};
-    int sizeX = 10, sizeY = 25;
     int roomX = 100, roomY = 100;
+    char curMap[sizeX + 2][sizeY + 2];
+    int obj[sizeX + 2][sizeY + 2];
     Player player;
-    vector<Room*> rooms;
-    Room gameMap[105][105];
+    Room *gm[105][105];
+    pair<int, int> gameMap[105][105]; // {roomtype, position in perspective vector}
+    vector <smithRoom*> smithRoomVec;
+    vector <npcRoom*> npcRoomVec;
+    vector <monsterRoom*> monsterRoomVec;
+    vector <chestRoom*> chestRoomVec;
+
 public:
+
     // show the whole room when changing room
     void showRoomChange();
+
+    // show status
+    void showStatus();
+
+    // show status pad
+    void showStatusPad();
+
+    // show inventory
+    void showInventory();
 
     // show the player position change
     void showPlayerChange(int, int, int, int);
@@ -36,26 +55,16 @@ public:
     /* Create a map, which include several different rooms */
     void createMap();
 
-    /* Deal with player's iteraction with objects in that room */
-    void handleEvent(Object*);
 
+    // check if coordinate valid
+    bool checkCoordValid(int, int);
 
     // handle input action
-    void handleAction(int);
+    void handleMovement(int);
 
     /* Deal with all game initial setting       */
     /* Including create player, create map etc  */
     void startGame();
-
-    /* Deal with the player's action     */
-    /* including showing the action list */
-    /* that player can do at that room   */
-    /* and dealing with player's input   */
-    void chooseAction(vector<Object*>);
-
-    /* Check whether the game should end or not */
-    /* Including player victory, or he/she dead */
-    bool checkGameLogic();
 
     /* Deal with the whole game process */
     void runDungeon();

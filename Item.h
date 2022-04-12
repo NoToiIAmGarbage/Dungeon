@@ -4,33 +4,25 @@
 #include <iostream>
 #include <string>
 #include <vector>
-#include "Object.h"
 #include "Player.h"
 using namespace std;
 
 class Player;
 
-class Item: public Object
-{
+class Item {
 private:
-    int health,attack,defense;
+    int hp, atk, def, state;
 public:
-    // Item();
+    Item();
     // Item(string, int, int, int);
 
-    /* Virtual function that you need to complete    */
-    /* In Item, this function should deal with the   */
-    /* pick up action. You should add status to the  */
-    /* player.                                       */
-    void triggerEvent(Object*);
-
     /* Set & Get function*/
-    int getHealth();
-    int getAttack();
-    int getDefense();
-    void setHealth(int);
-    void setAttack(int);
-    void setDefense(int);
+    int getHp();
+    int getAtk();
+    int getDef();
+    void setHp(int);
+    void setAtk(int);
+    void setDef(int);
 };
 
 #endif // ITEM_H_INCLUDED

@@ -4,7 +4,6 @@
 #include <iostream>
 #include <string>
 #include <vector>
-#include "GameCharacter.h"
 #include "Room.h"
 #include "Item.h"
 
@@ -12,24 +11,39 @@ using namespace std;
 
 class Item;
 
-class Player: public GameCharacter
-{
+class Player {
 private:
-    int mapX, mapY, curX, curY, facing;
+    string name;
+    int maxHp;
+    int hp;
+    int atk;
+    int exp;
+    int lvl;
+    int lvlUp;
+    int mapX, mapY, curX, curY, facing, money;
     // map stands for current room
     // cur stands for position in current room
     // facing ranges in {0, 1, 2, 3} which is {up, down, left, right}
     vector<Item> inventory;
+    
 public:
+    /* Set & Get function*/
+    void setMaxHp(int);
+    void setHp(int);
+    void setAtk(int);
+    void setExp(int);
+    void setLvl(int);
+    void setLvlUp(int);
+    int getMaxHp();
+    int getHp();
+    int getAtk();
+    int getExp();
+    int getLvl();
+    int getLvlUp();
     Player();
-    Player(string, int, int);
+    Player(string);
     void addItem(Item);
     void increaseStates(int,int,int);
-
-    /* Virtual function that you need to complete   */
-    /* In Player, this function should show the     */
-    /* status of player.                            */
-    void triggerEvent(Object*);
 
     /* Set & Get function*/
     void setCoord(int, int);
@@ -39,6 +53,8 @@ public:
     void setFacing(int);
     void setInventory(vector<Item>);
     vector<Item> getInventory();
+
+    void showStatus();
 };
 
 #endif // PLAYER_H_INCLUDED

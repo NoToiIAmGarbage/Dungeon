@@ -1,5 +1,6 @@
 #include "Item.h"
 
-void Item::triggerEvent(Object*) {
-	// TBD
+// constructor
+Item::Item() {
+	
 }

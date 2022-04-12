@@ -3,13 +3,11 @@
 Player::Player() {
 }
 
-Player::Player(string name, int sizeX, int sizeY) {
-	setCoord(sizeX / 2, sizeY / 2);
+Player::Player(string name) {
+	setCoord(sizeX / 2 + 1, sizeY / 2 + 1);
 	setFacing(0);
-}
-
-void Player::triggerEvent(Object*) {
-
+	setHp(5); setMaxHp(10); setAtk(5);
+	setExp(5); setLvl(1); setLvlUp(10);
 }
 
 void Player::setCoord(int x, int y) {
@@ -27,4 +25,47 @@ int Player::getFacing() {
 }
 void Player::setFacing(int value) {
 	facing = value;
+}
+
+// showStatus
+void Player::showStatus() {
+	cout << "ATK : " << getAtk() << '\n';
+}
+
+void Player::setMaxHp(int value) {
+	maxHp = value;
+}
+
+void Player::setHp(int value) {
+	hp = value;
+}
+void Player::setAtk(int value) {
+	atk = value;
+}
+void Player::setExp(int value) {
+	exp = value;
+}
+void Player::setLvl(int value) {
+	lvl = value;
+}
+void Player::setLvlUp(int value) {
+	lvlUp = value;
+}
+int Player::getMaxHp() {
+	return maxHp;
+}
+int Player::getHp() {
+	return hp;
+}
+int Player::getAtk() {
+	return atk;
+}
+int Player::getExp() {
+	return exp;
+}
+int Player::getLvl() {
+	return lvl;
+}
+int Player::getLvlUp() {
+	return lvlUp;
 }
