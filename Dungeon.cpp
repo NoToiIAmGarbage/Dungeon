@@ -1,7 +1,19 @@
 #include "Dungeon.h"
-#include <windows.h>
-#include <conio.h>
-#include <time.h>
+
+
+int Dungeon::getRemainTime() {
+	return remainTime;
+}
+
+int randGen(int left, int right) {
+
+	using clk = chrono::high_resolution_clock;
+	using rand_int = uniform_int_distribution<int>;
+	using rand_double = uniform_real_distribution<double>;
+
+	mt19937 rng(clk::now().time_since_epoch().count());
+    return rand_int(left, right)(rng);
+}
 
 const HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
 
@@ -32,33 +44,20 @@ void setOutputOriginal() {
 	SetConsoleTextAttribute(hOut, FOREGROUND_RED | FOREGROUND_BLUE | FOREGROUND_GREEN);
 }
 
-// show status
-void Dungeon::showStatus() {
-	cout << "HP :  ";
-	setOutputRed();
-	for(int i = 0; i < player.getMaxHp(); i ++) {
-		if(i == player.getHp()) {
-			setOutputWhite();
-		}
-		cout << ' ';
+void Dungeon::changeRoom() {
+	int dx = player.getMapX() + direx[player.getFacing()];
+	int dy = player.getMapY() + direy[player.getFacing()];
+	if(dx > roomSize || dx < 1 || dy > roomSize || dy < 1) {
+		return;
 	}
-	cout << '\n';
-	setOutputOriginal();
-	cout << "EXP : ";
-	setOutputGreen();
-	for(int i = 0; i < player.getLvlUp(); i ++) {
-		if(i == player.getExp()) {
-			setOutputWhite();
-		}
-		cout << ' ';
-	}
-	cout << '\n';
-	setOutputOriginal();
+	player.setMapX(dx); player.setMapY(dy);
+	gm[player.getMapX()][player.getMapY()] -> enterRoom(player, curMap, obj);
+	showRoomChange();
 }
+
 
 void Dungeon::showStatusPad() {
 	system("cls");
-	showStatus();
 	player.showStatus();
 	cout << "Press b to return\n";
 	char c;
@@ -72,13 +71,7 @@ void Dungeon::showStatusPad() {
 
 void Dungeon::showInventory() {
 	system("cls");
-	cout << "Press b to return\n";
-	char c;
-	while(c = getch()) {
-		if(c == 'b' || c == 'B') {
-			break;
-		}
-	}
+	player.showBackpack();
 	showRoomChange();
 }
 
@@ -92,8 +85,10 @@ void Dungeon::showRoomChange() {
 		}
 		cout << '\n';
 	}
-	showStatus();
+	player.showStatus();
 	cout << "[E] : Status, [I] : Iventory\n";
+	cout << "Current Room Position : " << player.getMapX() << ' ' << player.getMapY() << '\n';
+	cout << "Current Room Type : " << (gm[player.getMapX()][player.getMapY()] -> getRoomType()) << '\n';
 }
 
 // self-explanary name 
@@ -114,32 +109,67 @@ void Dungeon::createPlayer() {
 
 /* Create a map, which include several different rooms */
 void Dungeon::createMap() {
-	srand(time(0));
-	for(int i = 1; i <= roomX; i ++) {
-		for(int j = 1; j <= roomY; j ++) {
-			int d = rand() % 4;
-			if(d == 0) {
+	start = new startRoom;
+	exit = new exitRoom;
+	gm[roomSize / 2 + 1][roomSize / 2 + 1] = start;
+	desX = randGen(0, 100) % roomSize + 1;
+	desY = randGen(0, 100) % roomSize + 1;
+	while(abs(desX - (roomSize / 2 + 1)) + abs(desY - (roomSize / 2 + 1)) < roomSize / 2) {
+		desX = randGen(0, 100) % roomSize + 1;
+		desY = randGen(0, 100) % roomSize + 1;
+	}
+	gm[desX][desY] = exit;
+	assert(gm[roomSize / 2 + 1][roomSize / 2 + 1] == start);
+	assert(gm[desX][desY] == exit);
+	for(int i = 1; i <= roomSize; i ++) {
+		for(int j = 1; j <= roomSize; j ++) {
+			if(i == roomSize / 2 + 1 && j == roomSize / 2 + 1) {
+				continue;
+			}
+			if(i == desX && j == desY) {
+				continue;
+			}
+			int d = i * (roomSize - 1) + j;
+			int tot = roomSize * roomSize;
+			if(d < tot / 10 * 5) {
 				monsterRoomVec.push_back(new monsterRoom());
 				gm[i][j] = monsterRoomVec.back();
-				gameMap[i][j] = {d, monsterRoomVec.size() - 1};
 			}
-			else if(d == 1) {
+			else if(d >= tot / 10 * 5 && d < tot / 10 * 7) {
 				npcRoomVec.push_back(new npcRoom());
 				gm[i][j] = npcRoomVec.back();
-				gameMap[i][j] = {d, npcRoomVec.size() - 1};
 			}
-			else if(d == 2) {
+			else if(d >= tot / 10 * 7 && d < tot / 10 * 9) {
 				smithRoomVec.push_back(new smithRoom());
 				gm[i][j] = smithRoomVec.back();
-				gameMap[i][j] = {d, smithRoomVec.size() - 1};
 			}
 			else {
 				chestRoomVec.push_back(new chestRoom());
 				gm[i][j] = chestRoomVec.back();
-				gameMap[i][j] = {d, chestRoomVec.size() - 1};
 			}
 		}
 	}
+	assert(gm[roomSize / 2 + 1][roomSize / 2 + 1] == start);
+	assert(gm[desX][desY] == exit);
+	for(int i = 0; i < 100000; i ++) {
+		int x1 = randGen(0, 100) % roomSize + 1;
+		int y1 = randGen(0, 100) % roomSize + 1;
+		while((x1 == roomSize / 2 + 1 && y1 == roomSize / 2 + 1) || 
+			  (x1 == desX && y1 == desY)) {
+			x1 = randGen(0, 100) % roomSize + 1;
+			y1 = randGen(0, 100) % roomSize + 1;
+		}
+		int x2 = randGen(0, 100) % roomSize + 1;
+		int y2 = randGen(0, 100) % roomSize + 1;
+		while((x2 == roomSize / 2 + 1 && y2 == roomSize / 2 + 1) || 
+			  (x2 == desX && y2 == desY)) {
+			x2 = randGen(0, 100) % roomSize + 1;
+			y2 = randGen(0, 100) % roomSize + 1;
+		}
+		swap(gm[x1][y1], gm[x2][y2]);
+	}
+	assert(gm[roomSize / 2 + 1][roomSize / 2 + 1] == start);
+	assert(gm[desX][desY] == exit);
 }
 
 bool Dungeon::checkCoordValid(int x, int y) {
@@ -153,13 +183,14 @@ void Dungeon::handleMovement(int actionType) {
 	player.setFacing(actionType);
 	int dx = player.getCurX() + direx[actionType];
 	int dy = player.getCurY() + direy[actionType];
-	if(checkCoordValid(dx, dy)) {
+	if(checkCoordValid(dx, dy) && (!obj[dx][dy] || obj[dx][dy] == 10)) {
 		showPlayerChange(
 			player.getCurX(), 
 			player.getCurY(), 
 			dx, dy
 		);
-		player.setCoord(dx, dy);
+		player.setCurX(dx);
+		player.setCurY(dy);
 	}
 	else {
 		showPlayerChange(
@@ -171,12 +202,45 @@ void Dungeon::handleMovement(int actionType) {
 	}
 }
 
-/* Check whether the game should end or not */
-/* Including player victory, or he/she dead */
-bool checkGameLogic();
+bool Dungeon::checkIsDoor(int x, int y) {
+	int midX = (sizeX / 2) + 1, midY = (sizeY / 2) + 1;
+	if(x == 0 && y == midY)  {
+		return true;
+	}
+	if(x == sizeX + 1 && y == midY) {
+		return true;
+	}
+	if(x == midX && y == 0) {
+		return true;
+	}
+	if(x == midX && y == sizeY + 1) {
+		return true;
+	}
+	return false;
+}
+void Dungeon::timer() {
+	while(remainTime) {
+		if(timeout || gameEnd) {
+			break;
+		}
+		setCursorPosition(6, 28);
+		setOutputRed();
+		cout << remainTime -- << " secs remaining!!\n";
+		setOutputOriginal();
+		Sleep(1000);
+	}
+}
+
+void Dungeon::endGame() {
+	system("cls");
+	cout << "You fucking died\n";
+	cout << "LOL you sucks\n";
+	return;
+}
 
 /* Deal with the whole game process */
 void Dungeon::runDungeon() {
+	thread {timer, this}.detach();
 	showRoomChange();
 	char curInput;
 	while(curInput = getch()) {
@@ -203,10 +267,28 @@ void Dungeon::runDungeon() {
 			int dy = player.getCurY() + direy[player.getFacing()];
 			if(checkCoordValid(dx, dy)) {
 				if(obj[dx][dy] == 1) {
-
+					Monster encounter(player.getLvl());
+					timeout = true;
+					bool d = encounter.combat(player);
+					timeout = false;
+					thread {timer, this}.detach();
+					if(player.getHp() == 0) {
+						endGame();
+						return;
+					}
+					if(d) {
+						obj[dx][dy] = 0;
+						curMap[dx][dy] = ' ';
+					}
+					showRoomChange();
 				} // monster
 				else if(obj[dx][dy] == 2) {
-
+					NPC encounter(player.getLvl());
+					timeout = true;
+					encounter.showOptions(player);
+					timeout = false;
+					thread {timer, this}.detach();
+					showRoomChange();
 				} // npc
 				else if(obj[dx][dy] == 3) {
 
@@ -214,12 +296,16 @@ void Dungeon::runDungeon() {
 				else if(obj[dx][dy] == 4) {
 
 				} // chest
-				else if(obj[dx][dy] == 6) {
+				else if(obj[dx][dy] == 5) {
 
 				} // exit
 			}
+			else if(checkIsDoor(dx, dy)) {
+				changeRoom();
+			}
 		}
 		else if(curInput == 'x') {
+			gameEnd = true;
 			break;
 		}
 	}
@@ -227,7 +313,8 @@ void Dungeon::runDungeon() {
 
 
 Dungeon::Dungeon() {
+	remainTime = 180; gameEnd = false;
 	createPlayer();
 	createMap();
-	gm[player.getCurX()][player.getCurY()] -> enterRoom(player, curMap, obj);
+	gm[player.getMapX()][player.getMapY()] -> enterRoom(player, curMap, obj);
 }

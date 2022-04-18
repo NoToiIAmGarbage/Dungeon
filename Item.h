@@ -11,18 +11,19 @@ class Player;
 
 class Item {
 private:
-    int hp, atk, def, state;
+    int attr, cost;
+    string tag, name;
 public:
     Item();
-    // Item(string, int, int, int);
+    Item(string, int, int);
 
-    /* Set & Get function*/
-    int getHp();
-    int getAtk();
-    int getDef();
-    void setHp(int);
-    void setAtk(int);
-    void setDef(int);
+    string getName();
+
+    int getAttr();
+
+    int getCost();
+
+    string getShopTag();
 };
 
 #endif // ITEM_H_INCLUDED

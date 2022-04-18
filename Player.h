@@ -5,6 +5,7 @@
 #include <string>
 #include <vector>
 #include "Room.h"
+#include "Backpack.h"
 #include "Item.h"
 
 using namespace std;
@@ -24,7 +25,7 @@ private:
     // map stands for current room
     // cur stands for position in current room
     // facing ranges in {0, 1, 2, 3} which is {up, down, left, right}
-    vector<Item> inventory;
+    Backpack *bp;
     
 public:
     /* Set & Get function*/
@@ -46,15 +47,26 @@ public:
     void increaseStates(int,int,int);
 
     /* Set & Get function*/
-    void setCoord(int, int);
+    void setCurX(int);
+    void setCurY(int);
     int getCurX();
     int getCurY();
+    void setMapX(int);
+    void setMapY(int);
+    int getMapX();
+    int getMapY();
     int getFacing();
     void setFacing(int);
     void setInventory(vector<Item>);
     vector<Item> getInventory();
 
     void showStatus();
+
+    void gainExp(int);
+
+    void recover();
+
+    void showBackpack();
 };
 
 #endif // PLAYER_H_INCLUDED

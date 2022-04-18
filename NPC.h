@@ -4,25 +4,25 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <iomanip>
 #include "Player.h"
 #include "Item.h"
 
 using namespace std;
 
+class Player;
+class Item;
+
 class NPC {
 private:
-    string script;
-    vector<Item> commodity;
-public:
-    // NPC();
-    // NPC(string, string, vector<Item>);
-    void listCommodity(); /*print all the Item in this NPC*/
+    vector<Item> shop;
 
-    /* Set & Get function*/
-    void setScript(string);
-    void setCommodity(vector<Item>);
-    string getScript();
-    vector<Item> getCommodity();
+public:
+    NPC(int lvl);
+    
+    void showOptions(Player&);
+
+    void showShop(Player&);
 };
 
 

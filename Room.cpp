@@ -1,7 +1,11 @@
 #include "Room.h"
 
 void Room::initializeMap(Player& player, char(*curMap)[sizeY + 2], int(*obj)[sizeY + 2]) {
-	memset(obj, 0, sizeof(obj));
+	for(int i = 0; i <= sizeX + 1; i ++) {
+		for(int j = 0; j <= sizeY + 1; j ++) {
+			obj[i][j] = 0;
+		}
+	}
 	int midX = (sizeX / 2) + 1, midY = (sizeY / 2) + 1;
 	if(player.getFacing() == 0) {
 		player.setCurX(sizeX);
@@ -19,8 +23,8 @@ void Room::initializeMap(Player& player, char(*curMap)[sizeY + 2], int(*obj)[siz
 		player.setCurX(midX);
 		player.setCurY(1);
 	}
-	obj[player.curX][player.curY] = 10;
-	obj[midX][1] = obj[midX][25] = obj[1][midY] = obj[10][midY] = 10;
+	obj[player.getCurX()][player.getCurY()] = 10;
+	obj[midX][1] = obj[midX][sizeY] = obj[1][midY] = obj[sizeX][midY] = 10;
 	for(int i = 0; i <= sizeX + 1; i ++) {
 		for(int j = 0; j <= sizeY + 1; j ++) {
 			if(i == 0 || i == sizeX + 1) {
@@ -57,8 +61,9 @@ void monsterRoom::addMonster(int x, int y) {
 
 void npcRoom::enterRoom(Player& player, char(*curMap)[sizeY + 2], int(*obj)[sizeY + 2]) {
 	initializeMap(player, curMap, obj);
-	int xMid = (sizeX / 2) + 1, yMid = (sizeY / 2) + 1;
-	obj[sizeX][sizeY] = 2; 
+	int midX = (sizeX / 2) + 1, midY = (sizeY / 2) + 1;
+	obj[midX][midY] = 2;
+	curMap[midX][midY] = 'N';
 }
 
 void monsterRoom::enterRoom(Player& player, char(*curMap)[sizeY + 2], int(*obj)[sizeY + 2]) {
@@ -100,5 +105,34 @@ void smithRoom::enterRoom(Player& player, char(*curMap)[sizeY + 2], int(*obj)[si
 void exitRoom::enterRoom(Player& player, char(*curMap)[sizeY + 2], int(*obj)[sizeY + 2]) {
 	initializeMap(player, curMap, obj);
 	int midX = (sizeX / 2) + 1, midY = (sizeY / 2) + 1;
-	
+	curMap[midX][midY] = 'E';
+	obj[midX][midY] = 5;
+}
+
+void startRoom::enterRoom(Player& player, char(*curMap)[sizeY + 2], int(*obj)[sizeY + 2]) {
+	initializeMap(player, curMap, obj);
+}
+
+string chestRoom::getRoomType() {
+	return "Chest Room";
+}
+
+string npcRoom::getRoomType() {
+	return "Npc Room";
+}
+
+string monsterRoom::getRoomType() {
+	return "Monster Room";
+}
+
+string exitRoom::getRoomType() {
+	return "Exit Room";
+}
+
+string startRoom::getRoomType() {
+	return "Start Room";
+}
+
+string smithRoom::getRoomType() {
+	return "Smith Room";
 }

@@ -5,6 +5,12 @@
 #include <string>
 #include <vector>
 #include <exception>
+#include <windows.h>
+#include <conio.h>
+#include <time.h>
+#include <random>
+#include <thread>
+#include <chrono>
 #include "Player.h"
 #include "Monster.h"
 #include "NPC.h"
@@ -12,7 +18,7 @@
 
 #define sizeX 11
 #define sizeY 25
-
+#define roomSize 11
 using namespace std;
 
 class Dungeon {
@@ -20,24 +26,33 @@ private:
     int direx[4] = {-1, 1, 0, 0};
     int direy[4] = {0, 0, -1, 1};
     char facingTable[4] = {'A', 'V', '<', '>'};
-    int roomX = 100, roomY = 100;
     char curMap[sizeX + 2][sizeY + 2];
     int obj[sizeX + 2][sizeY + 2];
+    int desX, desY;
+    int remainTime, gameEnd, timeout;
     Player player;
     Room *gm[105][105];
-    pair<int, int> gameMap[105][105]; // {roomtype, position in perspective vector}
     vector <smithRoom*> smithRoomVec;
     vector <npcRoom*> npcRoomVec;
     vector <monsterRoom*> monsterRoomVec;
     vector <chestRoom*> chestRoomVec;
+    startRoom* start;
+    exitRoom* exit;
 
 public:
 
+    void endGame();
+
+    void timer();
+
+    // get remain time
+    int getRemainTime();
+
+    // change room
+    void changeRoom();
+
     // show the whole room when changing room
     void showRoomChange();
-
-    // show status
-    void showStatus();
 
     // show status pad
     void showStatusPad();
@@ -55,6 +70,8 @@ public:
     /* Create a map, which include several different rooms */
     void createMap();
 
+    // check if coordinate is a door
+    bool checkIsDoor(int, int);
 
     // check if coordinate valid
     bool checkCoordValid(int, int);

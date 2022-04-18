@@ -17,6 +17,8 @@ do
 	str="$str $files"
 done
 
+cls
+
 g++ $str -o tmp
 
 ./tmp.exe

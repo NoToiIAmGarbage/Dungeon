@@ -12,6 +12,8 @@
 using namespace std;
 
 int main(){
+
+
     system("cls");
     cout << "1. New Game\n";
     cout << "2. Load Game\n";
