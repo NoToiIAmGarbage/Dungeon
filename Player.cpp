@@ -12,6 +12,9 @@ Player::Player(string name) {
 	setFacing(0);
 	setHp(3); setMaxHp(3); setAtk(5);
 	setExp(0); setLvl(1); setLvlUp(5);
+	money = 1000;
+
+	items.reserve(100);
 	bp = new Backpack;
 }
 
@@ -130,6 +133,7 @@ void Player::showStatus() {
 	}
 	setOutputOriginal();
 	cout << " ( lvl : " << lvl << " )\n";
+	cout << "$" << money << '\n';
 }
 
 void Player::gainExp(int value) {
@@ -148,5 +152,46 @@ void Player::recover() {
 
 
 void Player::showBackpack() {
-	bp -> showBackpack();
+	bp -> showBackpack(*this);
+}
+
+void Player::gainMoney(int value) {
+	money += value;
+}
+
+int Player::getMoney() {
+	return money;
+}
+
+void Player::purchase(Item item) {
+	money -= item.getCost();
+	items.push_back(item);
+	cout << &items.back() << '\n';
+	bp -> pickup(items.back());
+}
+
+void Player::addAtk(int attr) {
+	atk += attr;
+}
+
+void Player::addHp(int attr) {
+	maxHp += attr;
+}
+
+void Player::downAtk(int attr) {
+	atk -= attr;
+}
+
+void Player::downHp(int attr) {
+	maxHp -= attr;
+	hp = min(maxHp, hp);
+}
+
+void Player::getKey() {
+	bp -> setKey(true);
+}
+
+void Player::gainHp(int value) {
+	hp += value;
+	hp = min(maxHp, hp);
 }

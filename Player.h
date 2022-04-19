@@ -6,11 +6,11 @@
 #include <vector>
 #include "Room.h"
 #include "Backpack.h"
-#include "Item.h"
 
 using namespace std;
 
 class Item;
+class Backpack;
 
 class Player {
 private:
@@ -22,6 +22,8 @@ private:
     int lvl;
     int lvlUp;
     int mapX, mapY, curX, curY, facing, money;
+    vector<Item> items;
+    int m;
     // map stands for current room
     // cur stands for position in current room
     // facing ranges in {0, 1, 2, 3} which is {up, down, left, right}
@@ -67,6 +69,24 @@ public:
     void recover();
 
     void showBackpack();
+
+    void gainMoney(int);
+
+    int getMoney();
+
+    void purchase(Item);
+
+    void addAtk(int);
+    
+    void addHp(int);
+
+    void downAtk(int);
+
+    void downHp(int);
+
+    void getKey();
+
+    void gainHp(int);
 };
 
 #endif // PLAYER_H_INCLUDED

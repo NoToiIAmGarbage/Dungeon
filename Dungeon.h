@@ -86,6 +86,8 @@ public:
     /* Deal with the whole game process */
     void runDungeon();
 
+    void outputTip();
+
 };
 
 

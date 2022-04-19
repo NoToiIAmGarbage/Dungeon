@@ -4,6 +4,8 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <chrono>
+#include <random>
 #include "Player.h"
 using namespace std;
 
@@ -11,7 +13,7 @@ class Player;
 
 class Item {
 private:
-    int attr, cost;
+    int attr, cost, state;
     string tag, name;
 public:
     Item();
@@ -19,11 +21,19 @@ public:
 
     string getName();
 
+    string getTag();
+
     int getAttr();
+
+    bool getState();
 
     int getCost();
 
     string getShopTag();
+
+    void equip(Player&);
+
+    void unEquip(Player&);
 };
 
 #endif // ITEM_H_INCLUDED

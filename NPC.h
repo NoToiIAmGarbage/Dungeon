@@ -2,6 +2,8 @@
 #define NPC_H_INCLUDED
 
 #include <iostream>
+#include <random>
+#include <chrono>
 #include <string>
 #include <vector>
 #include <iomanip>

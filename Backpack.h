@@ -8,16 +8,22 @@
 using namespace std;
 
 class Player;
-class Backpack;
+class Item;
 
 class Backpack {
 private:
-	vector< pair<Item*, bool> > backpack;
+	vector<Item*> backpack;
 	Item *helmet, *chest, *pants, *boots, *weapon;
+	int key;
 public:
 	void showBackpack(Player&);
 	Backpack();
 
+	void pickup(Item&);
+
+	void output();
+
+	void setKey(bool);
 };
 
 

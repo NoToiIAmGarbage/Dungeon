@@ -151,7 +151,7 @@ void Dungeon::createMap() {
 	}
 	assert(gm[roomSize / 2 + 1][roomSize / 2 + 1] == start);
 	assert(gm[desX][desY] == exit);
-	for(int i = 0; i < 100000; i ++) {
+	for(int i = 0; i < 30000; i ++) {
 		int x1 = randGen(0, 100) % roomSize + 1;
 		int y1 = randGen(0, 100) % roomSize + 1;
 		while((x1 == roomSize / 2 + 1 && y1 == roomSize / 2 + 1) || 
@@ -238,6 +238,23 @@ void Dungeon::endGame() {
 	return;
 }
 
+void Dungeon::outputTip() {
+	cout << "\"The Exit is at your ";
+	if(player.getMapX() >= desX) {
+		cout << "top ";
+	}
+	else {
+		cout << "botton ";
+	}
+	if(player.getMapY() >= desY) {
+		cout << "left";
+	}
+	else {
+		cout << "right";
+	}
+	cout << "\"\n";
+}
+
 /* Deal with the whole game process */
 void Dungeon::runDungeon() {
 	thread {timer, this}.detach();
@@ -257,10 +274,16 @@ void Dungeon::runDungeon() {
 			handleMovement(3);
 		}
 		else if(curInput == 'i' || curInput == 'I') {
+			timeout = true;
 			showInventory();
+			timeout = false;
+			thread {timer, this}.detach();
 		}
 		else if(curInput == 'e' || curInput == 'E') {
+			timeout = true;
 			showStatusPad();
+			timeout = false;
+			thread {timer, this}.detach();
 		}
 		else if(curInput == ' ') {
 			int dx = player.getCurX() + direx[player.getFacing()];
@@ -270,15 +293,22 @@ void Dungeon::runDungeon() {
 					Monster encounter(player.getLvl());
 					timeout = true;
 					bool d = encounter.combat(player);
+					if(d) {
+						obj[dx][dy] = 0;
+						curMap[dx][dy] = ' ';
+						system("cls");
+						setCursorPosition(0, 0);
+						outputTip();
+						cout << "A voice in your head suddenly appeared:\n";
+						Sleep(2000);
+						cout << "Press any key to procceed\n";
+						char c = getch();
+					}
 					timeout = false;
 					thread {timer, this}.detach();
 					if(player.getHp() == 0) {
 						endGame();
 						return;
-					}
-					if(d) {
-						obj[dx][dy] = 0;
-						curMap[dx][dy] = ' ';
 					}
 					showRoomChange();
 				} // monster

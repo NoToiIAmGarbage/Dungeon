@@ -261,6 +261,12 @@ bool Monster::combat(Player& player) {
 		if(hp <= 0) {
 			system("cls");
 			player.gainExp(max(1, lvl - player.getLvl()));
+			player.gainMoney(max(1, lvl - player.getLvl()) * randGen(50, 100));
+			int t = randGen(0, 9);
+			if(t == 6) {
+				cout << "You've attained the exit's key!!!\n";
+				player.getKey();
+			}
 			cout << "Congrats !! You've killed the monster !!\n";
 			cout << "You've got " << max(1, lvl - player.getLvl()) << " exp!!\n";
 			cout << "Press any key to exit the combat system.\n";
