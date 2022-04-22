@@ -10,9 +10,10 @@ Player::Player(string name) {
 	setMapX(roomSize / 2 + 1);
 	setMapY(roomSize / 2 + 1);
 	setFacing(0);
-	setHp(3); setMaxHp(3); setAtk(5);
+	setHp(3); setMaxHp(3); setAtk(1000);
 	setExp(0); setLvl(1); setLvlUp(5);
 	money = 1000;
+	this -> name = name;
 
 	items.reserve(100);
 	bp = new Backpack;
@@ -113,6 +114,8 @@ static void setOutputOriginal() {
 }
 
 void Player::showStatus() {
+	cout << "=================================\n";
+	cout << "Name : " << name << '\n';
 	cout << "HP :  ";
 	setOutputRed();
 	for(int i = 0; i < maxHp; i ++) {
@@ -133,14 +136,20 @@ void Player::showStatus() {
 	}
 	setOutputOriginal();
 	cout << " ( lvl : " << lvl << " )\n";
+	cout << "ATK : " << atk << '\n';
+	setOutputGreen();
 	cout << "$" << money << '\n';
+	setOutputOriginal();
+	cout << "=================================\n";
 }
 
 void Player::gainExp(int value) {
 	exp += value;
-	if(exp >= lvlUp) {
+	while(exp >= lvlUp) {
 		lvl ++;
 		hp ++;
+		maxHp ++;
+		atk += 3;
 		exp -= lvlUp;
 		lvlUp += 2;
 	}
@@ -166,7 +175,6 @@ int Player::getMoney() {
 void Player::purchase(Item item) {
 	money -= item.getCost();
 	items.push_back(item);
-	cout << &items.back() << '\n';
 	bp -> pickup(items.back());
 }
 
@@ -194,4 +202,8 @@ void Player::getKey() {
 void Player::gainHp(int value) {
 	hp += value;
 	hp = min(maxHp, hp);
+}
+
+bool Player::haveKey() {
+	return bp -> haveKey();
 }

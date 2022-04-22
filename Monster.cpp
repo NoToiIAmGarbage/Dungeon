@@ -1,5 +1,7 @@
 #include "Monster.h"
 
+static vector<string> V{"adorable","adventurous","aggressive","agreeable","alert","alive","amused","angry","annoyed","annoying","anxious","arrogant","ashamed","attractive","average","awful","bad","beautiful","better","bewildered","black","bloody","blue","blue-eyed","blushing","bored","brainy","brave","breakable","bright","busy","calm","careful","cautious","charming","cheerful","clean","clear","clever","cloudy","clumsy","colorful","combative","comfortable","concerned","condemned","confused","cooperative","courageous","crazy","creepy","crowded","cruel","curious","cute","dangerous","dark","dead","defeated","defiant","delightful","depressed","determined","different","difficult","disgusted","distinct","disturbed","dizzy","doubtful","drab","dull","eager","easy","elated","elegant","embarrassed","enchanting","encouraging","energetic","enthusiastic","envious","evil","excited","expensive","exuberant","fair","faithful","famous","fancy","fantastic","fierce","filthy","fine","foolish","fragile","frail","frantic","friendly","frightened","funny","gentle","gifted","glamorous","gleaming","glorious","good","gorgeous","graceful","grieving","grotesque","grumpy","handsome","happy","healthy","helpful","helpless","hilarious","homeless","homely","horrible","hungry","hurt","ill","important","impossible","inexpensive","innocent","inquisitive","itchy","jealous","jittery","jolly","joyous","kind","lazy","light","lively","lonely","long","lovely","lucky","magnificent","misty","modern","motionless","muddy","mushy","mysterious","nasty","naughty","nervous","nice","nutty","obedient","obnoxious","odd","old-fashioned","open","outrageous","outstanding","panicky","perfect","plain","pleasant","poised","poor","powerful","precious","prickly","proud","putrid","puzzled","quaint","real","relieved","repulsive","rich","scary","selfish","shiny","shy","silly","sleepy","smiling","smoggy","sore","sparkling","splendid","spotless","stormy","strange","stupid","successful","super","talented","tame","tasty","tender","tense","terrible","thankful","thoughtful","thoughtless","tired","tough","troubled","ugliest","ugly","uninterested","unsightly","unusual","upset","uptight","vast","victorious","vivacious","wandering","weary","wicked","wide-eyed","wild","witty","worried","worrisome","wrong","zany","zealous",};
+
 static int randGen(int left, int right) {
 
 	using clk = chrono::high_resolution_clock;
@@ -13,6 +15,8 @@ static int randGen(int left, int right) {
 Monster::Monster() {};
 
 Monster::Monster(int playerLvl) {
+	int t = randGen(0, V.size() - 1);
+	name = V[t] + " beast";
 	lvl = randGen(playerLvl - 5, playerLvl + 5);
 	lvl = max(1, lvl);
 	hp = mxHp = 1000 * lvl;
@@ -194,6 +198,8 @@ void Monster::offensePhase(Player& player) {
 }
 
 void Monster::showMonsterStatus() {
+	cout << "=================================\n";
+	cout << "Name : " << name << '\n';
 	cout << "LVL : " << lvl << '\n';
 	cout << "HP : ";
 	int x = mxHp / 5;
@@ -210,6 +216,7 @@ void Monster::showMonsterStatus() {
 		}
 	}
 	cout << " (" << hp << " / " << mxHp << ")\n";
+	cout << "=================================\n";
 }
 
 bool Monster::combat(Player& player) {
@@ -223,9 +230,12 @@ bool Monster::combat(Player& player) {
 	int round = 1;
 	while(true) {
 		system("cls");
-		cout << "Fight or Escape ?\n";
-		cout << "[f] for fight, [e] for escape\n";
-
+		cout << "=================================\n";
+		cout << "|                               |\n";
+		cout << "| Do you wanna Fight or Escape? |\n";
+		cout << "| [f] for fight, [e] for escape |\n";
+		cout << "|                               |\n";
+		cout << "=================================\n";
 
 		cout << "You : \n";
 		player.showStatus();
@@ -243,16 +253,20 @@ bool Monster::combat(Player& player) {
 		}
 		shots.clear();
 		defenseEnd = hit = 0;
-		defensePhase(300 - 20 * round, player);
+		defensePhase(200 - 20 * round, player);
 		system("cls");
 		if(hit) {
-			player.setHp(player.getHp() - 1);
+			player.setHp(player.getHp() - max(1, lvl - player.getLvl()));
 		}
-		if(player.getHp() == 0) {
+		if(player.getHp() <= 0) {
 			return false;
 		}
-		cout << "You Survived !!!\n";
-		cout << "Press any key to proceed to offense phase\n";
+		cout << "=============================================\n";
+		cout << "|                                           |\n";
+		cout << "|               You Survived !!!            |\n";
+		cout << "| Press any key to proceed to offense phase |\n";
+		cout << "|                                           |\n";
+		cout << "=============================================\n";
 		Sleep(2000);
 		c = getch();
 		hitCnt = offenseEnd = 0;
@@ -260,25 +274,35 @@ bool Monster::combat(Player& player) {
 		hp -= hitCnt * player.getAtk();
 		if(hp <= 0) {
 			system("cls");
-			player.gainExp(max(1, lvl - player.getLvl()));
+			player.gainExp(2 * max(1, lvl - player.getLvl()));
 			player.gainMoney(max(1, lvl - player.getLvl()) * randGen(50, 100));
 			int t = randGen(0, 9);
-			if(t == 6) {
-				cout << "You've attained the exit's key!!!\n";
+			cout << "============================================\n";
+			cout << "|                                          |\n";
+			if(t == 8) {
+				setOutputGreen();
+				cout << "|     You've attained the exit's key!!!      |\n";
+				setOutputOriginal();
 				player.getKey();
 			}
-			cout << "Congrats !! You've killed the monster !!\n";
-			cout << "You've got " << max(1, lvl - player.getLvl()) << " exp!!\n";
-			cout << "Press any key to exit the combat system.\n";
+			cout << "| Congrats !! You've killed the monster !! |\n";
+			cout << "|           You've got " << max(1, lvl - player.getLvl()) * 2 << " exp!!             |\n";
+			cout << "| Press any key to exit the combat system. |\n";
+			cout << "|                                          |\n";
+			cout << "============================================\n";
 			Sleep(2000);
 			c = getch();
 			return true;
 		}
 		system("cls");
-		cout << "You delt " << hitCnt * player.getAtk() << " damages to the monster!!\n";
-		cout << "You didn't kill the monster : (\n";
-		cout << "It's OK !!!\n";
-		cout << "Press any key to procceed to defensePhase\n";
+		cout << "=========================================\n";
+		cout << "|                                       |\n";
+		cout << "| You delt " << hitCnt * player.getAtk() << " damages to the monster!! |\n";
+		cout << "| You didn't kill the monster : ( |\n";
+		cout << "|            It's OK !!! |\n              |\n";
+		cout << "| Press any key to procceed to defensePhase\n |\n";
+		cout << "|                                             |\n";
+		cout << "=========================================\n";
 		Sleep(2000);
 		c = getch();
 		round ++;

@@ -94,6 +94,7 @@ void NPC::showShop(Player& player) {
 				system("cls");
 				setCursorPosition(0, 0);
 				cout << "Purchased " << shop[curPtr].getName() << '\n';
+				shop.erase(shop.begin() + curPtr);
 				Sleep(2000);
 			}
 			else {

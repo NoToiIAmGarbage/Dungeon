@@ -87,6 +87,8 @@ public:
     void getKey();
 
     void gainHp(int);
+
+    bool haveKey();
 };
 
 #endif // PLAYER_H_INCLUDED

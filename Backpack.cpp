@@ -44,7 +44,7 @@ void Backpack::output() {
 		cout << "|WEAPON|" << setw(20) << weapon -> getName() << '|' << '\n';
 	}
 	else {
-		cout << "| BOOTS|" << setw(20) << "EMPTY" << '|' << '\n';	 
+		cout << "|WEAPON|" << setw(20) << "EMPTY" << '|' << '\n';	 
 	}
 	cout << "=============================\n";
 	cout << "Owned : \n";
@@ -65,13 +65,15 @@ void Backpack::output() {
 	if(key) {
 		cout << "|" << setw(20) << "The Exit's key" << "|        |           |  |";
 	}
-	cout << "\n[W] and [S] to scoll up and down, [spacebar] to purchase, [B] to leave\n";
+	cout << "\n[W] and [S] to scoll up and down, [spacebar] to purchase, [B] to leave, [X] to dispose item\n";
 }
 
 void Backpack::showBackpack(Player& player) {
 	output();
 	char c;
-	int curPtr = 8;
+	int curPtr = 1;
+	setCursorPosition(curPtr, 29);
+	cout << '*';
 	while(c = getch()) {
 		if(c == 'w' || c == 'W') {
 			if(curPtr > 8) {
@@ -104,14 +106,14 @@ void Backpack::showBackpack(Player& player) {
 				setCursorPosition(curPtr, 29);
 				cout << '*';
 			}
-			else if(curPtr == 5) {
+			else if(curPtr == 5 && !backpack.empty()) {
 				curPtr += 3;
 				setCursorPosition(curPtr - 3, 29);
 				cout << ' ';
 				setCursorPosition(curPtr, 46);
 				cout << '*';	
 			}
-			else if(curPtr < backpack.size() - 1 + 8) {
+			else if(!backpack.empty() && curPtr < backpack.size() - 1 + 8) {
 				curPtr ++;
 				setCursorPosition(curPtr - 1, 46);
 				cout << ' ';
@@ -176,8 +178,8 @@ void Backpack::showBackpack(Player& player) {
 						helmet = nullptr;
 						system("cls");
 						output();
-						curPtr = 8;
-						setCursorPosition(8, 46);
+						curPtr = 1;
+						setCursorPosition(curPtr, 29);
 						cout << '*';
 					}
 				}
@@ -187,8 +189,8 @@ void Backpack::showBackpack(Player& player) {
 						chest = nullptr;
 						system("cls");
 						output();
-						curPtr = 8;
-						setCursorPosition(8, 46);
+						curPtr = 1;
+						setCursorPosition(curPtr, 29);
 						cout << '*';
 					}
 				}
@@ -198,8 +200,8 @@ void Backpack::showBackpack(Player& player) {
 						pants = nullptr;
 						system("cls");
 						output();
-						curPtr = 8;
-						setCursorPosition(8, 46);
+						curPtr = 1;
+						setCursorPosition(curPtr, 29);
 						cout << '*';
 					}
 				}
@@ -209,8 +211,8 @@ void Backpack::showBackpack(Player& player) {
 						boots = nullptr;
 						system("cls");
 						output();
-						curPtr = 8;
-						setCursorPosition(8, 46);
+						curPtr = 1;
+						setCursorPosition(curPtr, 29);
 						cout << '*';
 					}
 				}
@@ -220,13 +222,43 @@ void Backpack::showBackpack(Player& player) {
 						weapon = nullptr;
 						system("cls");
 						output();
-						curPtr = 8;
-						setCursorPosition(8, 46);
+						curPtr = 1;
+						setCursorPosition(curPtr, 29);
 						cout << '*';
 					}
 				}
 			}
 
+		}
+		else if(c == 'x' || c == 'X') {
+			if(curPtr >= 8) {
+				system("cls");
+				cout << "Disposed " << backpack[curPtr - 8] -> getName() << '\n';
+				if(backpack[curPtr - 8] -> getState()) {
+					if(backpack[curPtr - 8] -> getTag() == "helmet") {
+						helmet = nullptr;
+					}
+					if(backpack[curPtr - 8] -> getTag() == "chest") {
+						chest = nullptr;
+					}
+					if(backpack[curPtr - 8] -> getTag() == "pants") {
+						pants = nullptr;
+					}
+					if(backpack[curPtr - 8] -> getTag() == "boots") {
+						boots = nullptr;
+					}
+					if(backpack[curPtr - 8] -> getTag() == "weapon") {
+						weapon = nullptr;
+					}
+					backpack[curPtr - 8] -> unEquip(player);
+				}	
+				backpack.erase(backpack.begin() + curPtr - 8);
+				Sleep(2000);
+				system("cls");
+				output();
+				curPtr = 1;
+				setCursorPosition(curPtr, 29);
+			}
 		}
 		else if(c == 'b' || c == 'B') {
 			break;
@@ -241,4 +273,8 @@ void Backpack::pickup(Item& item) {
 
 void Backpack::setKey(bool value) {
 	key = value;
+}
+
+bool Backpack::haveKey() {
+	return key;
 }

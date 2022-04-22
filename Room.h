@@ -69,4 +69,10 @@ public:
     string getRoomType();
 };
 
+class emptyRoom : public Room {
+    public:
+    void enterRoom(Player&, char(*)[sizeY + 2], int(*obj)[sizeY + 2]);
+    string getRoomType();  
+};
+
 #endif // ROOM_H_INCLUDED

@@ -24,6 +24,8 @@ public:
 	void output();
 
 	void setKey(bool);
+
+	bool haveKey();
 };
 
 

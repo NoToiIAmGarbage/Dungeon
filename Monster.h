@@ -10,6 +10,7 @@
 #include <windows.h>
 #include <conio.h>
 #include <thread>
+#include "Item.h"
 #include "Player.h"
 
 using namespace std;
@@ -18,6 +19,7 @@ class Player;
 
 class Monster {
 private:
+    string name;
     vector<pair<int, int> > shots;
     int hp, lvl, curTrack, hit, offenseEnd, defenseEnd, mxHp;
     int hitCnt;

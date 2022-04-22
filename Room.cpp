@@ -69,7 +69,7 @@ void npcRoom::enterRoom(Player& player, char(*curMap)[sizeY + 2], int(*obj)[size
 void monsterRoom::enterRoom(Player& player, char(*curMap)[sizeY + 2], int(*obj)[sizeY + 2]) {
 	initializeMap(player, curMap, obj);	
 	srand(time(0));
-	int t = rand() % 10;
+	int t = rand() % 10 + 1;
 	for(int i = 0; i < t; i ++) {
 		int x = rand() % sizeX + 1, y = rand() % sizeY + 1;
 		while(obj[x][y]) {
@@ -113,6 +113,9 @@ void startRoom::enterRoom(Player& player, char(*curMap)[sizeY + 2], int(*obj)[si
 	initializeMap(player, curMap, obj);
 }
 
+void emptyRoom::enterRoom(Player& player, char(*curMap)[sizeY + 2], int(*obj)[sizeY + 2]) {
+	initializeMap(player, curMap, obj);	
+}
 string chestRoom::getRoomType() {
 	return "Chest Room";
 }
@@ -135,4 +138,8 @@ string startRoom::getRoomType() {
 
 string smithRoom::getRoomType() {
 	return "Smith Room";
+}
+
+string emptyRoom::getRoomType() {
+	return "Empty Room";
 }

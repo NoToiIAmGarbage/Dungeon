@@ -51,6 +51,22 @@ void Dungeon::changeRoom() {
 		return;
 	}
 	player.setMapX(dx); player.setMapY(dy);
+	if(gm[player.getMapX()][player.getMapY()] -> getRoomType() == "Exit Room" && !player.haveKey()) {
+		timeout = true;
+		system("cls");
+		cout << "You haven't find the key to this room !!\n";
+		Sleep(2000);
+		timeout = false;
+		thread {timer, this}.detach();
+		player.setFacing(player.getFacing() / 2 * 2 + !(player.getFacing() % 2));
+		changeRoom();
+	}
+	for(int i = 1; i <= 11; i ++) {
+		for(int j = 1; j <= 25; j ++) {
+			drop[i][j].clear();
+		}
+	}
+	vis[player.getMapX()][player.getMapY()] = (gm[player.getMapX()][player.getMapY()] -> getRoomType())[0];
 	gm[player.getMapX()][player.getMapY()] -> enterRoom(player, curMap, obj);
 	showRoomChange();
 }
@@ -87,8 +103,35 @@ void Dungeon::showRoomChange() {
 	}
 	player.showStatus();
 	cout << "[E] : Status, [I] : Iventory\n";
+	cout << "[P] : pause, [X] : Exit\n";
 	cout << "Current Room Position : " << player.getMapX() << ' ' << player.getMapY() << '\n';
 	cout << "Current Room Type : " << (gm[player.getMapX()][player.getMapY()] -> getRoomType()) << '\n';
+	for(int i = 0; i <= 12; i ++) {
+		setCursorPosition(i, 48);
+		for(int j = 0; j <= 32; j ++) {
+			if(i == 0 || i == 12) {
+				cout << '-';
+			}
+			else if(j == 0 || j == 32) {
+				cout << '|';
+			}
+			else if((j - 1) % 3 == 0) {
+				int x = i, y = (j - 1) / 3 + 1;
+				if(player.getMapX() == x && player.getMapY() == y) {
+					setOutputGreen();
+					cout << vis[x][y];
+					setOutputOriginal();
+				}
+				else {
+					cout << vis[x][y];
+				}
+			}
+			else {
+				cout << ' ';
+			}
+		}
+		cout << '\n';
+	}
 }
 
 // self-explanary name 
@@ -131,17 +174,13 @@ void Dungeon::createMap() {
 			}
 			int d = i * (roomSize - 1) + j;
 			int tot = roomSize * roomSize;
-			if(d < tot / 10 * 5) {
+			if(d < tot / 10 * 6) {
 				monsterRoomVec.push_back(new monsterRoom());
 				gm[i][j] = monsterRoomVec.back();
 			}
-			else if(d >= tot / 10 * 5 && d < tot / 10 * 7) {
+			else if(d >= tot / 10 * 6 && d < tot / 10 * 8) {
 				npcRoomVec.push_back(new npcRoom());
 				gm[i][j] = npcRoomVec.back();
-			}
-			else if(d >= tot / 10 * 7 && d < tot / 10 * 9) {
-				smithRoomVec.push_back(new smithRoom());
-				gm[i][j] = smithRoomVec.back();
 			}
 			else {
 				chestRoomVec.push_back(new chestRoom());
@@ -229,17 +268,27 @@ void Dungeon::timer() {
 		setOutputOriginal();
 		Sleep(1000);
 	}
+	if(!remainTime) {
+		gameEnd = true;
+	}
 }
 
-void Dungeon::endGame() {
+void Dungeon::gameLose() {
+	gameEnd = true;
 	system("cls");
-	cout << "You fucking died\n";
-	cout << "LOL you sucks\n";
+	cout << "You Died QQ\n";
+	return;
+}
+
+void Dungeon::gameWon() {
+	gameEnd = true;
+	system("cls");
+	cout << "You Win !!\n";
 	return;
 }
 
 void Dungeon::outputTip() {
-	cout << "\"The Exit is at your ";
+	cout << "\"  The Exit is at your ";
 	if(player.getMapX() >= desX) {
 		cout << "top ";
 	}
@@ -252,7 +301,7 @@ void Dungeon::outputTip() {
 	else {
 		cout << "right";
 	}
-	cout << "\"\n";
+	cout << "\"";
 }
 
 /* Deal with the whole game process */
@@ -261,6 +310,10 @@ void Dungeon::runDungeon() {
 	showRoomChange();
 	char curInput;
 	while(curInput = getch()) {
+		if(gameEnd) {
+			gameLose();
+			break;
+		}
 		if(curInput == 'w' || curInput == 'W') {
 			handleMovement(0);
 		}
@@ -296,10 +349,54 @@ void Dungeon::runDungeon() {
 					if(d) {
 						obj[dx][dy] = 0;
 						curMap[dx][dy] = ' ';
+						int k = randGen(0, 3);
+						if(k) {
+							obj[dx][dy] = 3;
+							curMap[dx][dy] = '*';
+							int t = remainTime % 6;
+							Item tmp;
+							if(t == 0) {
+								int d = randGen(0, 10000) * remainTime % 3;
+								int cost = d * 100 + randGen(0, 10000) * remainTime % 100;
+								tmp = Item("helmet", d + 1, cost);
+							}
+							else if(t == 1) {
+								int d = randGen(0, 10000) * remainTime % 3;
+								int cost = d * 100 + randGen(0, 10000) * remainTime % 100;
+								tmp = Item("chest", d + 1, cost);
+							}
+							else if(t == 2) {
+								int d = randGen(0, 10000) * remainTime % 3;
+								int cost = d * 100 + randGen(0, 10000) * remainTime % 100;
+								tmp = Item("pants", d + 1, cost);
+							}
+							else if(t == 3) {
+								int d = randGen(0, 10000) * remainTime % 3;
+								int cost = d * 100 + randGen(0, 10000) * remainTime % 100;
+								tmp = Item("boots", d + 1, cost);
+							}
+							else if(t == 4) {
+								int d = player.getLvl() + randGen(0, 10000) * remainTime % 20;
+								int cost = d * 100 + randGen(0, 10000) * remainTime % 100;
+								tmp = Item("weapon", d, cost);
+							}
+							else {
+								tmp = Item("potion", (4 + player.getLvl()) / 2, 60);
+							}
+							drop[dx][dy].push_back(tmp);
+						}
 						system("cls");
 						setCursorPosition(0, 0);
+						cout << "============================================\n";
+						cout << "|   ";
+						setOutputRed();
 						outputTip();
-						cout << "A voice in your head suddenly appeared:\n";
+						setOutputOriginal();
+						cout << "   |\n";
+						cout << "| A voice in your head suddenly appeared : |\n";
+						cout << "|                                          |\n";
+						cout << "============================================\n";
+						setOutputOriginal();
 						Sleep(2000);
 						cout << "Press any key to procceed\n";
 						char c = getch();
@@ -307,7 +404,7 @@ void Dungeon::runDungeon() {
 					timeout = false;
 					thread {timer, this}.detach();
 					if(player.getHp() == 0) {
-						endGame();
+						gameLose();
 						return;
 					}
 					showRoomChange();
@@ -321,13 +418,128 @@ void Dungeon::runDungeon() {
 					showRoomChange();
 				} // npc
 				else if(obj[dx][dy] == 3) {
-
-				} // smith
+					timeout = true;
+					system("cls");
+					for(Item x : drop[dx][dy]) {
+						cout << '|';
+						cout << setw(20) << x.getName();
+						cout << "|" << x.getShopTag();
+						cout << setw(2) << x.getAttr() << '|';
+						cout << "COST : ";
+						cout << setw(4) << x.getCost() << "|";
+						cout << '\n';
+					}
+					cout << "[W] to scroll up, [S] to scroll down, [spacebar] to pick up, [B] to leave.\n";
+					char c;
+					int curPtr = 0;
+					setCursorPosition(curPtr, 43);
+					cout << '*';
+					while(c = getch()) {
+						if(c == 'w' || c == 'W') {
+							if(curPtr > 0) {
+								setCursorPosition(curPtr, 43);
+								cout << ' ';
+								curPtr --;
+								setCursorPosition(curPtr, 43);
+								cout << 'S';
+							}
+						}
+						else if(c == 's' || c == 'S') {
+							if(!drop[dx][dy].empty() && curPtr < drop[dx][dy].size() - 1) {
+								setCursorPosition(curPtr, 43);
+								cout << ' ';
+								curPtr ++;
+								setCursorPosition(curPtr, 43);
+								cout << drop[dx][dy].size() - 1;
+							}
+						}
+						else if(c == ' ') {
+							if(curPtr < drop[dx][dy].size()) {
+								system("cls");
+								cout << "You picked up " << drop[dx][dy][curPtr].getName() << '\n';
+								player.purchase(drop[dx][dy][curPtr]);
+								player.gainMoney(drop[dx][dy][curPtr].getCost());
+								Sleep(2000);
+								drop[dx][dy].erase(drop[dx][dy].begin() + curPtr);
+								system("cls");
+								for(Item x : drop[dx][dy]) {
+									cout << '|';
+									cout << setw(20) << x.getName();
+									cout << "|" << x.getShopTag();
+									cout << setw(2) << x.getAttr() << '|';
+									cout << "COST : ";
+									cout << setw(4) << x.getCost() << "|";
+								}
+								curPtr = 0;
+								cout << "[W] to scroll up, [S] to scroll down, [spacebar] to pick up, [B] to leave.\n";
+							}
+						}
+						else if(c == 'b' || c == 'B') {
+							break;
+						}
+					}
+					if(drop[dx][dy].empty()) {
+						obj[dx][dy] = 0;
+						curMap[dx][dy] = ' ';
+					}
+					timeout = false;
+					thread {timer, this}.detach();
+					system("cls");
+					showRoomChange();
+				} // drops
 				else if(obj[dx][dy] == 4) {
-
+					timeout = true;
+					system("cls");
+					int t = remainTime %  5;
+					Item tmp;
+					if(t == 0) {
+						int d = randGen(0, 10000) * remainTime % 3;
+						int cost = d * 100 + randGen(0, 10000) * remainTime % 100;
+						tmp = Item("helmet", d + 1, cost);
+						player.purchase(tmp);
+						player.gainMoney(cost);
+					}
+					else if(t == 1) {
+						int d = randGen(0, 10000) * remainTime % 3;
+						int cost = d * 100 + randGen(0, 10000) * remainTime % 100;
+						tmp = Item("chest", d + 1, cost);
+						player.purchase(tmp);
+						player.gainMoney(cost);
+					}
+					else if(t == 2) {
+						int d = randGen(0, 10000) * remainTime % 3;
+						int cost = d * 100 + randGen(0, 10000) * remainTime % 100;
+						tmp = Item("pants", d + 1, cost);
+						player.purchase(tmp);
+						player.gainMoney(cost);
+					}
+					else if(t == 3) {
+						int d = randGen(0, 10000) * remainTime % 3;
+						int cost = d * 100 + randGen(0, 10000) * remainTime % 100;
+						tmp = Item("boots", d + 1, cost);
+						player.purchase(tmp);
+						player.gainMoney(cost);
+					}
+					else {
+						int d = player.getLvl() + randGen(0, 10000) * remainTime % 20;
+						int cost = d * 100 + randGen(0, 10000) * remainTime % 100;
+						tmp = Item("weapon", d, cost);
+						player.purchase(tmp);
+						player.gainMoney(cost);
+					}
+					cout << "You've got " << tmp.getName() << '\n';
+					Sleep(2000);
+					curMap[dx][dy] = ' ';
+					gm[player.getMapX()][player.getMapY()] = emptyRoomInstance;
+					obj[dx][dy] = 0;
+					system("cls");
+					showRoomChange();
+					timeout = false;
+					thread {timer, this}.detach();
 				} // chest
 				else if(obj[dx][dy] == 5) {
-
+					gameWon();
+					break;
 				} // exit
 			}
 			else if(checkIsDoor(dx, dy)) {
@@ -335,15 +547,39 @@ void Dungeon::runDungeon() {
 			}
 		}
 		else if(curInput == 'x') {
+			system("cls");
 			gameEnd = true;
 			break;
+		}
+		else if(curInput == 'p') {
+			timeout = true;
+			system("cls");
+			cout << "Paused, [b] to continue\n";
+			char c;
+			while(c = getch()) {
+				if(c == 'b') {
+					break;
+				}
+			}
+			system("cls");
+			showRoomChange();
+			timeout = false;
+			thread {timer, this}.detach();
 		}
 	}
 }
 
 
 Dungeon::Dungeon() {
+	for(int i = 1; i <= roomSize; i ++) {
+		for(int j = 1; j <= roomSize; j ++) {
+			vis[i][j] = ' ';
+		}
+	}
+	vis[6][6] = 'S';
 	remainTime = 180; gameEnd = false;
+	emptyRoomInstance = new emptyRoom;
+	system("cls");
 	createPlayer();
 	createMap();
 	gm[player.getMapX()][player.getMapY()] -> enterRoom(player, curMap, obj);

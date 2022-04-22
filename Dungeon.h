@@ -27,21 +27,27 @@ private:
     int direy[4] = {0, 0, -1, 1};
     char facingTable[4] = {'A', 'V', '<', '>'};
     char curMap[sizeX + 2][sizeY + 2];
+    char vis[roomSize + 1][roomSize + 1];
     int obj[sizeX + 2][sizeY + 2];
     int desX, desY;
     int remainTime, gameEnd, timeout;
+    vector<Item> drop[12][26];
     Player player;
     Room *gm[105][105];
+    emptyRoom* emptyRoomInstance;
     vector <smithRoom*> smithRoomVec;
     vector <npcRoom*> npcRoomVec;
     vector <monsterRoom*> monsterRoomVec;
     vector <chestRoom*> chestRoomVec;
+    vector <emptyRoom*> emptyRoomVec;
     startRoom* start;
     exitRoom* exit;
 
 public:
 
-    void endGame();
+    void gameWon();
+
+    void gameLose();
 
     void timer();
 

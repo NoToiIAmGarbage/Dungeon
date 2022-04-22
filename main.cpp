@@ -11,27 +11,32 @@
 
 using namespace std;
 
-int main(){
-
-
-    system("cls");
-    cout << "1. New Game\n";
-    cout << "2. Load Game\n";
+int main() {
     char c;
-    while(c = getch()) {
-        if(c == '1' || c == '2') {
-            break;
+    bool yes = true;
+    while(yes) {
+        system("cls");
+        cout << "====================================\n";
+        cout << "|Press [spacebar] to start the game|\n";
+        cout << "====================================\n";
+        while(c = getch()) {
+            if(c == ' ') {
+                break;
+            }
         }
-        else {
-            return 0;
-        }
-    }
-    if(c == '1') {
         Dungeon dungeon = Dungeon();
         dungeon.runDungeon();
-    }
-    else {
-
+        char c;
+        cout << "Press [R] to restart or [Q] to quit\n";
+        while(c = getch()) {
+            if(c == 'r' || c == 'R') {
+                break;
+            }
+            else if(c == 'q' || c == 'Q') {
+                yes = false;
+                break;
+            }
+        }
     }
     return 0;
 }
